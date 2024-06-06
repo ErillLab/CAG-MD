@@ -2,8 +2,8 @@
     "entrez_parameters": {
         "request_limit": 5,
         "sleep_time": 0.5,
-        "email": "manaves@uoc.edu",
-        "api_key": "c0a0a82c88725aa8ed6a9273b1a93317ed08"
+        "email": "",
+        "api_key": ""
     },
 
     "blast_parameters": {
