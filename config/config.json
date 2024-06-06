@@ -1,0 +1,40 @@
+{
+    "entrez_parameters": {
+        "request_limit": 5,
+        "sleep_time": 0.5,
+        "email": "manaves@uoc.edu",
+        "api_key": "c0a0a82c88725aa8ed6a9273b1a93317ed08"
+    },
+
+    "blast_parameters": {
+        "db": "nr",
+        "tax_IDs": ["135621"],
+        "e_value": 10E-10,
+        "query_coverage": 0.75,
+        "max_hits": 50
+    },
+
+    "sequences_parameters": {
+        "max_intergenic_size": 120,
+        "min_intergenic_size": 50,
+        "upstream_size_region": 10000,
+        "downstream_size_region": 50
+    },
+
+    "max_identity": 0.7,
+
+    "meme_parameters": {
+        "mod": "zoops",
+        "nmotifs": 5,
+        "minw": 8,
+        "maxw": 22,
+        "revcomp": true,
+        "pal": false
+    },
+
+    "output_parameters" : {
+        "folder_name" : "Output_Ivan_Examples"
+    },
+
+    "input_records" : ["WP_003238209.1", "QJF44568.1", "NP_388444.1"]
+}
