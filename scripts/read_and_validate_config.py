@@ -52,7 +52,7 @@ def validate_config(config):
             "schema": {
                 "request_limit": {"type": "integer", "min": 1},
                 "sleep_time": {"type": "number", "min": 0},
-                "email": {"type": "string", "regex": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"},
+                "email": {"type": "string", "regex": r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"},
                 "api_key": {"type": "string", "nullable": True}
             }
         },
@@ -72,28 +72,31 @@ def validate_config(config):
                 "max_intergenic_size": {"type": "number", "nullable": False},
                 "min_intergenic_size": {"type": "number", "nullable": False},
                 "upstream_size_region": {"type": "number", "nullable": False},
-                "downstream_size_region": {"type": "number", "nullable": False}
+                "downstream_size_region": {"type": "number", "nullable": False},
+                "max_sequence_length": {"type": "integer", "nullable": True}
             }
         },
-        "max_identity": {"type": "float"},
+        "max_identity": {"type": "float", "nullable": False, "min": 0.0, "max": 1.0},
         "meme_parameters": {
             "type": "dict",
             "schema": {
                 "mod": {"type": "string", "nullable": False},
                 "nmotifs": {"type": "integer", "nullable": False},
-                "minw": {"type": "integer", "nullable": False},
+                "minw": {"type": "integer", "nullable": False, "min": 0},
                 "maxw": {"type": "integer", "nullable": False},
                 "revcomp": {"type": "boolean", "nullable": False},
                 "pal": {"type": "boolean", "nullable": False}
             }
         },
+        "run_only_meme": {"type": "boolean", "nullable": False},
         "output_parameters": {
             "type": "dict",
             "schema": {
-                "folder_name": {"type": "string"}
+                "folder_name": {"type": "string", "nullable": False},
+                "folder_rerun_meme": {"type": "string", "nullable": True}
             }
         },
-        "input_records": {"type": "list", "minlength": 1}
+        "input_records": {"type": "list", "minlength": 1, "nullable": False}
     }
 
     # Validate JSON file

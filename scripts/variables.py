@@ -17,6 +17,7 @@ class Variables:
         min_intergenic_size (int): the minimum size (in base pairs) allowed for intergenic regions.
         upstream_size_region (int): the size of the upstream region for sequence retrieval.
         downstream_size_region (int): the size of the downstream region for sequence retrieval.
+        max_sequence_length (int): the maximum length of the sequence of the putative promoter.
         max_identity (float): the maximum identity threshold for sequence filtering.
         meme_mod (str): the mod parameter for MEME search.
         meme_nmotifs (int): the number of motifs to search for in MEME.
@@ -24,6 +25,8 @@ class Variables:
         meme_maxw (int): the maximum width of motifs to search for in MEME.
         meme_revcomp (str): whether to allow reverse complement motifs in MEME.
         meme_pal (str): whether to enforce sequence palindromes in MEME.
+        run_only_meme (bool): indicates whether you want to run only meme or not
+            (i.e., you already have the filtered sequences). If False, the program will be executed from the beginning.
         folder_name (str): the name of the output folder.
         input_records (list): a list containing input records or data.
 
@@ -43,12 +46,12 @@ class Variables:
         self.e_value = None
         self.query_coverage = None
         self.max_hits = None
-        # Operon parameters
+        # Sequences parameters
         self.max_intergenic_size = None
         self.min_intergenic_size = None
-        # Sequences parameters
         self.upstream_size_region = None
         self.downstream_size_region = None
+        self.max_sequence_length = None
         # Max identity
         self.max_identity = None
         # MEME parameters
@@ -58,6 +61,7 @@ class Variables:
         self.meme_maxw = None
         self.meme_revcomp = None
         self.meme_pal = None
+        self.run_only_meme = None
         # Output parameters
         self.folder_name = None
         # Input records

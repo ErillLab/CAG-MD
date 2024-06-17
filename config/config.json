@@ -6,35 +6,40 @@
         "api_key": ""
     },
 
+
     "blast_parameters": {
         "db": "nr",
-        "tax_IDs": ["135621"],
+        "tax_IDs": ["795747"],
         "e_value": 10E-10,
         "query_coverage": 0.75,
-        "max_hits": 50
+        "max_hits": 200
     },
 
     "sequences_parameters": {
         "max_intergenic_size": 120,
         "min_intergenic_size": 50,
         "upstream_size_region": 10000,
-        "downstream_size_region": 50
+        "downstream_size_region": 50,
+        "max_sequence_length": 500
     },
 
     "max_identity": 0.7,
 
     "meme_parameters": {
-        "mod": "zoops",
-        "nmotifs": 5,
+        "mod": "anr",
+        "nmotifs": 10,
         "minw": 8,
         "maxw": 22,
         "revcomp": true,
         "pal": false
     },
 
+    "run_only_meme": false,
+
     "output_parameters" : {
-        "folder_name" : "Output_Ivan_Examples"
+        "folder_name" : "Output",
+        "folder_rerun_meme": null
     },
 
-    "input_records" : ["WP_003238209.1", "QJF44568.1", "NP_388444.1"]
+    "input_records" : ["SPY14340.1"]
 }

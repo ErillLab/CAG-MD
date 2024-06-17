@@ -12,25 +12,21 @@ def calculate_motif_divergence(motifs_dict, id_sequences, path_output):
     between sequences, as well as unique sequence lengths.
 
     Parameters:
-        motifs_dict (dict): A dictionary containing motif data, including instances and sequence names.
-        id_sequences (dict): A dictionary containing sequences associated with each motif instance.
-        path_output (str): The path to the output directory where the Excel file will be saved.
+        motifs_dict (dict): a dictionary containing motif data, including instances and sequence names.
+        id_sequences (dict): a dictionary containing sequences associated with each motif instance.
+        path_output (str): the path to the output directory where the CSV file will be saved.
 
     Returns:
-        dict: A dictionary containing motif divergence statistics for each motif.
+        dict: a dictionary containing motif divergence statistics for each motif.
             Each motif key is associated with a dictionary containing statistics for each query sequence.
     """
     
     motif_divergence_stats = {}
-    
     aligner = Align.PairwiseAligner()
     aligner.mode = "global"
     
     # Get all query ids
-    all_query_ids = set()
-    for motif_data in motifs_dict.values():
-        for id_query_sequence in motif_data["instances"].keys():
-                all_query_ids.add(id_query_sequence)
+    all_query_ids = {id_query_sequence for motif_data in motifs_dict.values() for id_query_sequence in motif_data["instances"].keys()}
     
     # Create a dictionary with the sequences for each motif
     sequences_dict = {}
@@ -39,14 +35,17 @@ def calculate_motif_divergence(motifs_dict, id_sequences, path_output):
         motif = motif_data["motif"]
         
         for id_query, instances in motif_data["instances"].items():
-            if len(instances) == 0:
+            if not instances:
                 continue
             id_promotores = id_sequences[id_query][0]
             for instance in instances:
                 id_query_sequence = instance.sequence_name.split("$")[0]
-                seq_name = instance.sequence_name.split("$")[-1]
                 for seq in id_promotores:
-                    if seq["seq"].id == instance.sequence_name:
+                    if id_query_sequence in seq["seq"].id:
+                        seq_name = instance.sequence_name
+                    else:
+                        seq_name = instance.sequence_name.split("$")[-1]
+                    if seq["seq"].id == seq_name:
                         if id_query_sequence not in prov_dict:
                             prov_dict[id_query_sequence] = [(seq["seq"], len(seq["seq"]))]
                         else:
@@ -63,16 +62,15 @@ def calculate_motif_divergence(motifs_dict, id_sequences, path_output):
                     motif_stats[id_query_sequence] = {
                         "mean_distance": float("nan"),
                         "std_distance": float("nan"),
-                        "sequence_lengths": []
+                        "sequence_lengths": [seq[1] for seq in seq_list]
                     }
                 else:
-                    distances, lengths = [], []
+                    distances = []
                     for i in range(len(seq_list)):
                         for j in range(i + 1, len(seq_list)):
                             alignment = aligner.align(seq_list[i][0].seq, seq_list[j][0].seq)
                             distance = 1 - calculate_identity(alignment)
                             distances.append(distance)
-                            lengths.append(len(format(alignment[0]).split("\n")[1]))
                     
                     if distances:
                         mean_distance = np.mean(distances)
@@ -80,7 +78,7 @@ def calculate_motif_divergence(motifs_dict, id_sequences, path_output):
                         motif_stats[id_query_sequence] = {
                             "mean_distance": mean_distance,
                             "std_distance": std_distance,
-                            "sequence_lengths": lengths
+                            "sequence_lengths": [seq[1] for seq in seq_list]
                         }
                     else:
                         motif_stats[id_query_sequence] = {
@@ -94,34 +92,24 @@ def calculate_motif_divergence(motifs_dict, id_sequences, path_output):
                     "std_distance": float("nan"),
                     "sequence_lengths": []
                 }
-        
-        # Add missing query sequences
-        for id_query_sequence in all_query_ids:
-            if id_query_sequence not in motif_stats:
-                motif_stats[id_query_sequence] = {
-                    "mean_distance": float("nan"),
-                    "std_distance": float("nan"),
-                    "sequence_lengths": []
-                }
 
         motif_divergence_stats[motif] = motif_stats
     
-    save_results_to_excel(motif_divergence_stats, path_output+"/motif_divergence_stats.xlsx")
-
+    save_results_to_csv(motif_divergence_stats, path_output + "/motif_divergence_stats.csv")
+    
     return motif_divergence_stats
 
-
-def save_results_to_excel(motif_divergence_stats, output_filename):
+def save_results_to_csv(motif_divergence_stats, output_filename):
     """
-    Save motif divergence statistics to an Excel file.
+    Save motif divergence statistics to a CSV file.
 
     This function saves the motif divergence statistics, including mean distance, standard deviation of distance,
-    and unique sequence lengths, to an Excel file. The statistics are organized by motif and query sequence.
+    and unique sequence lengths, to a CSV file. The statistics are organized by motif and query sequence.
 
     Parameters:
         motif_divergence_stats (dict): A dictionary containing motif divergence statistics.
             Each motif key is associated with a dictionary containing statistics for each query sequence.
-        output_filename (str): The filename (including path) for the output Excel file.
+        output_filename (str): The filename (including path) for the output CSV file.
 
     Returns:
         None
@@ -141,4 +129,5 @@ def save_results_to_excel(motif_divergence_stats, output_filename):
             })
     
     df = pd.DataFrame(rows)
-    df.to_excel(output_filename, index=False)
+    df.to_csv(output_filename, index=False)
+

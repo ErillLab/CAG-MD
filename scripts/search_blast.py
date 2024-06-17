@@ -4,9 +4,14 @@ from tqdm import tqdm
 from logger import logger
 import time
 
+def build_taxon_query(taxIDs):
+    if len(taxIDs) == 1:
+        return "txid" + ",".join(map(str, taxIDs)) + "[ORGN]"
+    else:
+        return " OR ".join([f"txid{taxID}[ORGN]" for taxID in taxIDs])
 
-def search_blast(params, db="nr", max_hits=50, e_value=10E-10, taxIDs=None, min_coverage=None):
-    '''
+def search_blast(params, db = "nr", min_coverage = 0.75, max_hits = 50, e_value = 10E-10, taxIDs = None):
+    """
     Perform a BLAST search for a set of protein records.
 
     This function conducts a BLAST search for a set of protein records using the specified parameters.
@@ -15,7 +20,7 @@ def search_blast(params, db="nr", max_hits=50, e_value=10E-10, taxIDs=None, min_
 
     Parameters:
         params (Variables): an instance of the Variables class containing configuration parameters.
-        db (str, optional): the name of the BLAST database to be queried. Defaults to 'nr'.
+        db (str, optional): the name of the BLAST database to be queried. Defaults to "nr".
         max_hits (int, optional): the maximum number of hits to return. Defaults to 50.
         e_value (float, optional): the threshold for the E-value of the hits. Defaults to 10E-10.
         taxIDs (list of strings, optional): the taxonomic IDs limits to the BLAST search. Defaults to None.
@@ -30,7 +35,7 @@ def search_blast(params, db="nr", max_hits=50, e_value=10E-10, taxIDs=None, min_
 
     Note:
         This function logs various steps of the BLAST search process using the provided logger.
-    '''
+    """
     
     REQUEST_LIMIT = params.REQUEST_LIMIT
     SLEEP_TIME = params.SLEEP_TIME
@@ -74,7 +79,7 @@ def search_blast(params, db="nr", max_hits=50, e_value=10E-10, taxIDs=None, min_
         logger.info(f"\tPerforming BLAST search: {str(id)}")
         
         if taxIDs:
-            taxon_query = "txid" + ",".join(map(str, taxIDs)) + "[ORGN]"
+            taxon_query = build_taxon_query(taxIDs)
             logger.info(f"\t\tPerforming BLAST search on {",".join(map(str, taxIDs))}")
             for i in range(REQUEST_LIMIT):
                 try:
@@ -112,7 +117,7 @@ def search_blast(params, db="nr", max_hits=50, e_value=10E-10, taxIDs=None, min_
         
         for record in blast_records[0].alignments:
             
-            current_hit = record.hit_id.split('|')[1]
+            current_hit = record.hit_id.split("|")[1]
             logger.info(f"\t\tAnalyzing hit {str(current_hit)}")
             
             for hit in record.hsps:

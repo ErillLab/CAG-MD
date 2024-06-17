@@ -13,6 +13,7 @@ def extract_params(config):
     Returns:
         Variables: an instance of the Variables class containing the extracted parameters.
     """
+    
     configParams = Variables()
     
     # Entrez parameters
@@ -33,6 +34,10 @@ def extract_params(config):
     configParams.min_intergenic_size = config["sequences_parameters"]["min_intergenic_size"]
     configParams.upstream_size_region = config["sequences_parameters"]["upstream_size_region"]
     configParams.downstream_size_region = config["sequences_parameters"]["downstream_size_region"]
+    configParams.max_sequence_length = config["sequences_parameters"]["max_sequence_length"]
+    
+    # Max identity (filter)
+    configParams.max_identity = config["max_identity"]
     
     # MEME parameters
     configParams.meme_mod = config["meme_parameters"]["mod"]
@@ -41,6 +46,7 @@ def extract_params(config):
     configParams.meme_maxw = config["meme_parameters"]["maxw"]
     configParams.meme_revcomp = config["meme_parameters"]["revcomp"]
     configParams.meme_pal = config["meme_parameters"]["pal"]
+    configParams.run_only_meme = config["run_only_meme"]
     
     # Output parameters
     configParams.folder_name = config["output_parameters"]["folder_name"]

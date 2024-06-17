@@ -1,9 +1,10 @@
 import subprocess
 import tempfile
 from Bio import SeqIO
+import os
 from create_fasta import create_fasta
 
-def launch_meme_search(sequences_dict, configParams, meme_output):
+def launch_meme_search(sequences_dict, configParams, output, meme_output = False):
     """
     Launch MEME motif discovery search.
 
@@ -11,14 +12,16 @@ def launch_meme_search(sequences_dict, configParams, meme_output):
     using the specified parameters, and saves the results to the specified output directory.
 
     Parameters:
-        sequences_dict (dict): A dictionary containing the sequences to search for motifs.
+        sequences_dict (dict): a dictionary containing the sequences to search for motifs.
             The keys represent sequence identifiers, and the values are BioPython SeqRecord objects.
-        configParams (Variables): An instance of the Variables class containing MEME search parameters.
+        configParams (Variables): an instance of the Variables class containing MEME search parameters.
             The MEME search parameters include mod, nmotifs, minw, maxw, revcomp, and pal.
-        meme_output (str): The path to the output directory where MEME results will be saved.
+        output (str): the path to the output directory where MEME results will be saved.
+        meme_output (bool or str): if False, the FASTA file with the sequences is created.
+            If not False, it indicates the output folder for the new MEME execution.
 
     Returns:
-        list: A list of SeqRecord objects containing the input sequences in FASTA format.
+        list: a list of SeqRecord objects containing the input sequences in FASTA format.
 
     Note:
         The function generates a temporary FASTA file from the input sequences, launches the MEME search
@@ -28,12 +31,16 @@ def launch_meme_search(sequences_dict, configParams, meme_output):
 
     fasta_records = None
     try:
-        # Generate FASTA content
-        fasta_records = create_fasta(sequences_dict)
+        output_file_path = os.path.join(output,"meme_sequences_filtered.fasta")
         
-        with tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix = ".fasta") as temp_fasta:
-            SeqIO.write(fasta_records, temp_fasta, "fasta")
-            temp_fasta_path = temp_fasta.name
+        if not meme_output: 
+            # Generate FASTA content      
+            fasta_records = create_fasta(sequences_dict)
+            
+            with open(output_file_path, mode="w") as output_fasta:
+                SeqIO.write(fasta_records, output_fasta, "fasta")
+        else:
+            output = meme_output
         
         # Get MEME parameters
         mod = str(configParams.meme_mod)
@@ -49,16 +56,13 @@ def launch_meme_search(sequences_dict, configParams, meme_output):
             options.append("-pal")
         
         # Launch MEME search
-        command = ["meme", temp_fasta_path, "-oc", meme_output] + options
+        command = ["meme", output_file_path, "-oc", output] + options
         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         stdout, stderr = process.communicate()
         
         # Check for errors
         if stderr:
             print("Error while running MEME:", stderr)
-            
-    except ValueError as e:
-        print("Error writing sequence:", e)
     except Exception as e:
         print("An error occurred:", e)
     

@@ -9,45 +9,57 @@ def search_promoters(hit, configParams):
     genome annotations and configuration parameters.
 
     Parameters:
-        hit (dict): A dictionary containing information about the gene hit, including start and stop positions,
+        hit (dict): a dictionary containing information about the gene hit, including start and stop positions,
             strand, and other relevant details.
-        configParams (Variables): An instance of the Variables class containing configuration parameters,
+        configParams (Variables): an instance of the Variables class containing configuration parameters,
             such as the minimum and maximum intergenic distances and region sizes.
 
     Returns:
-        list: A list containing dictionaries representing potential promoters found in the intergenic regions
+        list: a list containing dictionaries representing potential promoters found in the intergenic regions
             of the gene hit. Each dictionary contains information about the gene record and the corresponding
             intergenic regions where potential promoters are located.
     """
     
+    
     promoters = []
     
-    min_intergenic_distance = configParams.min_intergenic_distance
-    max_intergenic_distance = configParams.max_intergenic_distance
+    min_intergenic_distance = configParams.min_intergenic_size
+    max_intergenic_distance = configParams.max_intergenic_size
+    max_sequence_length = configParams.max_sequence_length
+
+    if hit["acc"] is None:
+        logger.info("No accession number provided in the gene hit.")
+        return promoters
     
-    logger.info(f"-Searching for possible promoters in the genome of {hit['accession']}")
+    logger.info(f"-Searching for possible promoters in the genome of {hit['acc']}")
     
     annotation, original_start, original_end = fetch_genome_annotations(hit, configParams)
     
     gene_length = abs(int(hit["stop"])-int(hit["start"]))+1
     gene_strand = hit["strand"]
 
+    # Assign the correct gene start
     if gene_strand == -1:
         gene_start = configParams.downstream_size_region
-        gene_end =  gene_start + gene_length
+        if int(hit["start"]) < gene_start:
+            gene_start = int(hit["start"])-1
     else:
         gene_start = configParams.upstream_size_region
-        gene_end = gene_start + gene_length
+        if int(hit["start"]) < gene_start:
+            gene_start = int(hit["start"])-1
+    
+    gene_end =  gene_start + gene_length
         
     intergenic_regions_list = []
     
+    # If strand == 1, then we reversed the features
     if gene_strand == -1:
         annotations = annotation.features
     else:
         annotations = list(reversed(annotation.features))
 
     annotations_genes = [feature for feature in annotations if feature.type == "gene"]
-    i = 0
+    i, distance = 0, 0
     
     if gene_strand == -1:
         while i < len(annotations_genes) and annotations_genes[i].location.start <= gene_start:
@@ -59,7 +71,6 @@ def search_promoters(hit, configParams):
     for feature in annotations_genes[i:]:
         next_start = int(feature.location.start)
         next_end = int(feature.location.end)
-        distance = 0
         
         if gene_strand == -1:
             distance = next_start - gene_end
@@ -98,19 +109,23 @@ def search_promoters(hit, configParams):
         else:
             gene_start = next_start
             gene_end = next_end
+    
+    if min_intergenic_distance < distance < max_sequence_length:
+        max_sequence_length = distance
 
-    # Add intergenic region after the last gene
+    # Add putative promoter region after the last gene
     if gene_strand == -1:
-        start_intergenic_distance = gene_end + min_intergenic_distance
-        end_intergenic_distance = gene_end + min_intergenic_distance + max_intergenic_distance
+        start_intergenic_distance = gene_end
+        end_intergenic_distance = gene_end + max_sequence_length
     else:
-        start_intergenic_distance = gene_start - min_intergenic_distance - max_intergenic_distance
-        end_intergenic_distance = gene_start - min_intergenic_distance
+        end_intergenic_distance = gene_start
+        start_intergenic_distance = max(gene_start - max_sequence_length,0)
     
     intergenic_regions = {
         "start": start_intergenic_distance,
         "stop": end_intergenic_distance,
-        "length": abs(end_intergenic_distance-start_intergenic_distance)
+        "length": abs(end_intergenic_distance-start_intergenic_distance),
+        "strand": gene_strand
     }
     
     neighboring_gene_info = {
@@ -126,6 +141,6 @@ def search_promoters(hit, configParams):
     }
     promoters.append(promoter)
     
-    logger.info(f"\t-Promoters found for {hit['accession']}: {len(promoters)}")
+    logger.info(f"\t-Putative promoters found for {hit['acc']}: {len(promoters)}")
     
     return promoters
