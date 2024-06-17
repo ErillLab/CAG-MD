@@ -51,6 +51,7 @@ def main(root):
                 sequences.append(fetch_sequences(intergenic_positions, configParams))
                 
             print("\t\tFiltering the sequences...")
+            logger.info("\t\tFiltering the sequences...")
             sequences_filtered, identities_dict = filter_sequences(sequences, configParams)
             
             identities_id_dict[id] = identities_dict
@@ -65,16 +66,17 @@ def main(root):
     fasta_records = launch_meme_search(id_sequences, configParams, output, meme_output)
     logger.info("\tMEME search finished.")
     print("\tMEME search finished.")
+    
     logger.info("Reading MEME output and creating output files...")
+    print("Reading MEME output and creating output files...")
     motifs_dict = query_coverage(output, total_sequences)
     motifs_coverage = total_coverage(motifs_dict, total_sequences, output)
     motif_divergence = calculate_motif_divergence(motifs_dict, id_sequences, output)
-    
     final_summary(output)
-
-    logger.info("\t- Output files created.")
+    logger.info("Output files created.")
+    print("Output files created.")
     
-    pass
+    return None
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the main pipeline with the specified root directory.")

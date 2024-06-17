@@ -10,14 +10,14 @@ def filter_sequences(sequences, configParams):
     the specified maximum identity threshold.
 
     Parameters:
-        sequences (list): A list of dictionaries containing sequence information.
+        sequences (list): a list of dictionaries containing sequence information.
             Each dictionary should contain a key "seq" with a BioPython SeqRecord object
             representing the sequence.
-        configParams (Variables): An instance of the Variables class containing configuration parameters.
+        configParams (Variables): an instance of the Variables class containing configuration parameters.
             The configuration parameters should include the maximum identity threshold.
 
     Returns:
-        tuple: A tuple containing two elements:
+        tuple: a tuple containing two elements:
             - A list of dictionaries containing the filtered sequences that meet the identity threshold.
             - A dictionary containing pairwise sequence identities for the retained sequences.
               The keys are sequence IDs, and the values are lists of tuples.

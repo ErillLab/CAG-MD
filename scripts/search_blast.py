@@ -5,6 +5,28 @@ from logger import logger
 import time
 
 def build_taxon_query(taxIDs):
+    """
+    Builds a taxon query string for searching in biological databases.
+
+    Parameters:
+        taxIDs (list of int): s list of taxonomy IDs (integers).
+
+    Returns:
+        str: a query string formatted for use in biological database searches.
+
+    Description:
+        This function takes a list of taxonomy IDs and constructs a query string 
+        that can be used to search for organisms in biological databases like NCBI. 
+        The format of the query string depends on the number of taxonomy IDs provided:
+
+    - If there is only one taxonomy ID, the function returns a query string in the format:
+        "txid<taxID>[ORGN]".
+
+    - If there are multiple taxonomy IDs, the function returns a query string 
+        where each taxonomy ID is formatted as "txid<taxID>[ORGN]" and separated 
+        by " OR ".
+    """
+    
     if len(taxIDs) == 1:
         return "txid" + ",".join(map(str, taxIDs)) + "[ORGN]"
     else:

@@ -21,10 +21,13 @@ def read_config(pathConfig):
     """
     
     # Read JSON file
-    logger.info("- Reading config file...")
+    print("Reading config file...")
+    logger.info("Reading config file...")
     with open(pathConfig, "r") as file:
         config = json.load(file)
     # Validating JSON
+    print("\tValidating...")
+    logger.info("\tValidating...")
     if validate_config(config):
         return config
 
@@ -108,5 +111,6 @@ def validate_config(config):
         for field, error in validator.errors.items():
             raise Exception(f"Error in {field}: {error}")
     else:
-        logger.info("JSON file is valid.")
+        logger.info("\tJSON file is valid.")
+        print("\tJSON file is valid.")
         return True
